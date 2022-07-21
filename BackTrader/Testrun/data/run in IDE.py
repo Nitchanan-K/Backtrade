@@ -9,6 +9,7 @@ from Strategies.goldencross import GoldenCross
 
 # import analyzer
 from close_trade_list import trade_list
+
 # dict contain stg
 strategies = {
     'golden_cross': GoldenCross,
