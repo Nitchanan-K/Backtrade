@@ -1,0 +1,103 @@
+import xlsxwriter
+from tkinter import *
+from tkinter import filedialog
+import pandas as pd
+#######################################################################################################################
+import backtrader as bt
+import matplotlib
+from tabulate import tabulate
+# import strategies that in the dict contain stg
+from Mainbacktrader.Strategies.buyandhold import BuyHold
+from Mainbacktrader.Strategies.goldencross import GoldenCross
+# import analyzer
+from Mainbacktrader.close_trade_list import trade_list
+
+
+
+########################################################################################################################
+# backtrader
+# set framework
+cerebro = bt.Cerebro()
+# set cash
+cerebro.broker.setcash(10000)
+# data
+btc_prices = pd.read_csv('BTC-USD.csv', index_col='Date', parse_dates=True)
+# feed data and add data
+feed = bt.feeds.PandasData(dataname=btc_prices)
+cerebro.adddata(feed)
+# pre set strategy
+cerebro.addstrategy(GoldenCross)
+# add analyzers
+cerebro.addanalyzer(trade_list, _name='trade_list')
+
+########################################################################################################################
+# GUI
+# make window
+window = Tk()
+
+
+
+# make func for button
+def show_plot():
+    # run
+    strats = cerebro.run(tradehistory=True)
+    # get analyzer data
+    trade_list = strats[0].analyzers.trade_list.get_analysis()
+    #print('\n=== close data list analyzer === \n', tabulate(trade_list, headers="keys"))
+    # plot is last / print any is before plot
+    cerebro.plot()
+
+# make save file to xlsx
+
+def save_file_xlsx():
+    # run
+    strats = cerebro.run(tradehistory=True)
+    # get analyzer data
+    trade_list = strats[0].analyzers.trade_list.get_analysis()
+    # make df
+    df = pd.DataFrame(trade_list)
+
+    # this is to make ref set number according to the number of data rows
+    # because when we run plot and save plot data ref is adding itself so we need to set it according to data rows
+    # อันนี้คือทำให้ คอลัม ref กลับ มารัยเลขจาก 1 - n ตามข้อมูล เพราะปกติมันจะรันทับกันและบวกกันไม่ตามข้อมูล
+    for i in range(len(df.loc[:,'ref'])):
+        print(i+1)
+        df.loc[i:i, 'ref'] = i+1
+    try:
+        with filedialog.asksaveasfile(mode='w', defaultextension=".xlsx") as file:
+            df.to_excel(file.name)
+    except AttributeError:
+        print("The user cancelled save")
+
+# make show_plot button
+button_show_plot = Button(master=window,
+                text="Show plot!",
+                command=show_plot,
+                font=('Comic Sans',30),
+                foreground="#00FF00",
+                background="black",
+                activeforeground="#00FF00",
+                activebackground="black",
+                state = ACTIVE # can be DISABLE
+                )
+# place button
+button_show_plot.pack()
+
+# make save_file_xlsx button
+button_save_file = Button(master=window,
+                text="Save data to xlsx file!",
+                command=save_file_xlsx,
+                font=('Comic Sans',30),
+                foreground="#00FF00",
+                background="black",
+                activeforeground="#00FF00",
+                activebackground="black",
+                state = ACTIVE # can be DISABLE
+                )
+# place button
+button_save_file.pack()
+
+
+#run window
+window.mainloop()
+
