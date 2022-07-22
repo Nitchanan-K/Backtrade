@@ -1,0 +1,110 @@
+# import lib that we need
+# Dataframe
+import pandas as pd
+from tabulate import tabulate
+# Backtrader
+import backtrader as bt
+# vis plot
+import matplotlib
+matplotlib.use('TKAgg')
+# import GUI
+from tkinter import *
+from tkinter import messagebox
+# import strategies that in the dict contain stg
+from Strategies.buyandhold import BuyHold
+from Strategies.goldencross import GoldenCross
+# import analyzer
+from close_trade_list import trade_list
+# import xlsxwriter to save file to xlsx
+import xlsxwriter
+#  import filedialog for gui save
+from tkinter import filedialog
+
+########################################################################################################################
+# backtrader
+# set framework
+cerebro = bt.Cerebro()
+# set cash
+cerebro.broker.setcash(10000)
+# data
+btc_prices = pd.read_csv('BTC-USD.csv', index_col='Date', parse_dates=True)
+# feed data and add data
+feed = bt.feeds.PandasData(dataname=btc_prices)
+cerebro.adddata(feed)
+# pre set strategy
+cerebro.addstrategy(GoldenCross)
+# add analyzers
+cerebro.addanalyzer(trade_list, _name='trade_list')
+########################################################################################################################
+
+# GUI
+# make window
+window = Tk()
+#########################################################################################
+
+# make func for button to show plot
+def show_plot():
+    # run data
+    strats = cerebro.run(tradehistory=True)
+    # get analyzer data to trade_list variable
+    trade_list = strats[0].analyzers.trade_list.get_analysis()
+    print('\n=== close data list analyzer === \n', tabulate(trade_list, headers="keys"))
+    # plot is last / print any is before plot
+    cerebro.plot()
+
+# make func for button to save file to xlsx
+def save_file_xlsx():
+    # run data
+    strats = cerebro.run(tradehistory=True)
+    # get analyzer data to trade_list variable
+    trade_list = strats[0].analyzers.trade_list.get_analysis()
+
+    ##########################################################
+    # make DataFrame to pass data from console to DataFrame
+    df = pd.DataFrame(trade_list)
+
+    # this is to make ref set number according to the number of data rows (set colum ref number 1 - n)
+    # because when we run plot and save plot data ref is adding itself so we need to set it according to data rows
+    # use for loop to check how many row and then add number to ref from 1 to n accordingly to the rows
+    for i in range(len(df.loc[:,'ref'])):
+        df.loc[i:i, 'ref'] = i+1
+    # set ref as index
+    df.set_index('ref',inplace=True)
+    # pop up to ask user to save file use filedialog.asksaveasfile and pass data with panda DataFrame
+    try:
+        with filedialog.asksaveasfile(mode='w', defaultextension=".xlsx") as file:
+            df.to_excel(file.name)
+    except AttributeError:
+        print("The user cancelled save")
+############################################################################################
+
+# make button_
+button_Plot = Button(master=window,
+                text="Plot!",
+                command=show_plot,
+                font=('Comic Sans',20),
+                foreground="#00FF00",
+                background="black",
+                activeforeground="#00FF00",
+                activebackground="black",
+                state = ACTIVE # can be DISABLE
+                )
+# place button
+button_Plot.pack()
+##################################################
+# button save file
+button_save_file = Button(master=window,
+                text="save file !",
+                command=save_file_xlsx,
+                font=('Comic Sans',20),
+                foreground="#00FF00",
+                background="black",
+                activeforeground="#00FF00",
+                activebackground="black",
+                state = ACTIVE, # can be DISABLE
+                )
+# place save button
+button_save_file.pack()
+##################################################
+#run button
+window.mainloop()
