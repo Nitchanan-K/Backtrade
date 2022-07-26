@@ -1,0 +1,161 @@
+# import lib that we need
+# Dataframe
+import pandas as pd
+from tabulate import tabulate
+
+# vis plot
+import matplotlib
+matplotlib.use('TKAgg')
+# import GUI
+
+from tkinter import messagebox
+from tkinter import *
+from tkinter.ttk import *
+from tkinter import ttk
+import tkinter as tk
+import png
+#  import filedialog for gui save
+from tkinter import filedialog
+from PIL import ImageTk, Image
+from backtesting import Backtest, Strategy
+from backtesting.lib import crossover
+from backtesting.test import SMA, GOOG , EURUSD
+
+# get list data name
+from crypto_list_api_ticker_name import list_a
+list_a_copy = list_a
+
+##############################################################################################################
+
+
+
+# search_name function
+def Scankey():
+    global q
+    val = q.get()
+    print(val)
+
+    if val == '':
+        data = list
+    else:
+        data = []
+        for item in list_a_copy:
+            if val.lower() in item.lower():
+                data.append(item)
+
+    Update(data)
+
+
+def Update(data):
+    tree_view_crypto_name.delete(*tree_view_crypto_name.get_children())
+
+    # put new data
+    for item in data:
+        print(data)
+        tree_view_crypto_name.insert('','end', values=item)
+        tree_view_crypto_name.update()
+
+# reset fucntion
+def Reset
+
+root = tk.Tk()
+q = StringVar()
+# Make the app responsive
+for index in [0, 1, 2, 3]:
+    root.columnconfigure(index=index, weight=1)
+    root.rowconfigure(index=index, weight=1)
+
+
+# make download_data_frame
+download_data_frame = ttk.LabelFrame(master=root, text="Download Data", padding=(20, 10))
+download_data_frame.grid(row=0, column=3,rowspan=2,
+                    padx=(20, 10), pady=(20, 10), sticky="nsew"
+                    )
+# Text label download_data_frame
+label = ttk.Label(master=download_data_frame, text="Name of the data",justify="center",
+                  font=("-size", 15, "-weight", "bold")
+                  )
+label.grid(row=0, column=0,columnspan=3, padx=5, pady=10, sticky="nsew")
+
+
+
+# Create Panedwindow for treeview
+paned = ttk.PanedWindow(master=download_data_frame)
+paned.grid(row=1, column=1, pady=(25, 5), sticky="nsew", rowspan=2)
+# Pane #1
+pane_1 = ttk.Frame(paned, padding=5)
+paned.add(pane_1, weight=1)
+# Pane #1
+pane_2 = ttk.Frame(paned, padding=5)
+paned.add(pane_2, weight=1)
+
+
+
+# Scrollbar
+scrollbar_y = ttk.Scrollbar(pane_1)
+scrollbar_y.pack(side="right", fill="y")
+
+# Treeview
+tree_view_crypto_name = ttk.Treeview(master=pane_1,
+                                     yscrollcommand = scrollbar_y.set,
+                                     height=10,
+                                     selectmode="browse"
+                                     )
+
+tree_view_crypto_name.pack(expand=True, fill="both")
+scrollbar_y.config(command=tree_view_crypto_name.yview)
+
+
+# Columns
+tree_view_crypto_name['columns'] = ('Crypto/USD')
+tree_view_crypto_name.column('#0', width=0, stretch=NO)
+tree_view_crypto_name.column('Crypto/USD')
+
+tree_view_crypto_name.heading('#0', text='', anchor=CENTER)
+tree_view_crypto_name.heading('Crypto/USD', text='Crypto/USD', anchor=CENTER)
+
+# pass data in to it
+
+
+for item in list_a_copy:
+    tree_view_crypto_name.insert('', 'end', values=item)
+
+# Add entry box
+search_entry = ttk.Entry(master=pane_2,font=("Helvetica",10),textvariable=q)
+search_entry.pack(expand=True,padx=5,pady=5, fill="both")
+# Search Button
+search_button = ttk.Button(master=pane_2,text="Search")
+search_button.pack(expand=True,padx=5,pady=5, fill="both")
+search_button['command'] = Scankey
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Simply set the theme after calling frame
+root.tk.call("source", "azure.tcl")
+root.tk.call("set_theme", "dark")
+
+# Set a minsize for the window, and place it in the middle
+root.update()
+root.minsize(root.winfo_width(), root.winfo_height())
+x_cordinate = int((root.winfo_screenwidth() / 2) - (root.winfo_width() / 2))
+y_cordinate = int((root.winfo_screenheight() / 2) - (root.winfo_height() / 2))
+root.geometry("+{}+{}".format(x_cordinate, y_cordinate-20))
+
+
+# run window
+root.mainloop()
