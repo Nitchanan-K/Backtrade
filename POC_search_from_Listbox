@@ -56,7 +56,20 @@ def Update(data):
         tree_view_crypto_name.update()
 
 # reset fucntion
-def Reset
+def Reset():
+    tree_view_crypto_name.delete(*tree_view_crypto_name.get_children())
+    for item in list_a_copy:
+        tree_view_crypto_name.insert('', 'end', values=item)
+
+# label change from select button
+def select_data_name():
+    curItem = tree_view_crypto_name.focus()
+    text = tree_view_crypto_name.item(curItem)
+    label_tree_view.config(text=text['values'])
+
+
+
+
 
 root = tk.Tk()
 q = StringVar()
@@ -72,10 +85,10 @@ download_data_frame.grid(row=0, column=3,rowspan=2,
                     padx=(20, 10), pady=(20, 10), sticky="nsew"
                     )
 # Text label download_data_frame
-label = ttk.Label(master=download_data_frame, text="Name of the data",justify="center",
+label_tree_view = ttk.Label(master=download_data_frame, text="Name of the data",justify="center",
                   font=("-size", 15, "-weight", "bold")
                   )
-label.grid(row=0, column=0,columnspan=3, padx=5, pady=10, sticky="nsew")
+label_tree_view.grid(row=0, column=0,columnspan=3, padx=5, pady=10, sticky="nsew")
 
 
 
@@ -115,8 +128,6 @@ tree_view_crypto_name.heading('#0', text='', anchor=CENTER)
 tree_view_crypto_name.heading('Crypto/USD', text='Crypto/USD', anchor=CENTER)
 
 # pass data in to it
-
-
 for item in list_a_copy:
     tree_view_crypto_name.insert('', 'end', values=item)
 
@@ -125,11 +136,16 @@ search_entry = ttk.Entry(master=pane_2,font=("Helvetica",10),textvariable=q)
 search_entry.pack(expand=True,padx=5,pady=5, fill="both")
 # Search Button
 search_button = ttk.Button(master=pane_2,text="Search")
-search_button.pack(expand=True,padx=5,pady=5, fill="both")
+search_button.pack(expand=True,padx=5,pady=5, fill="both",side=LEFT)
 search_button['command'] = Scankey
-
-
-
+# reset Button
+reset_button = ttk.Button(master=pane_2,text="Reset")
+reset_button.pack(expand=True,padx=5,pady=5, fill="both",side=RIGHT)
+reset_button['command'] = Reset
+# select name button
+reset_button = ttk.Button(master=pane_2,text="Select ")
+reset_button.pack(expand=True,padx=5,pady=5, fill="both")
+reset_button['command'] = select_data_name
 
 
 
