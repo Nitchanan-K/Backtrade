@@ -28,18 +28,23 @@ list_a_copy = list_a
 from yahoo_fin.stock_info import get_analysts_info
 from yahoo_fin.stock_info import *
 import yahoo_fin.stock_info as si
-#######################################################################################################################
+
+######################################################################################################################
 # place Holder
 selected_strategy = None
-#######################################################################################################################
-# function for the root
-# function for download file from API  Frame
+# var holder
 
+######################################################################################################################
 def crypto_download_data():
     global list_a_copy
     # download data file from API Yahoo Finance
-    data_downloaded = get_data(select_data_name(), start_date="06/20/2021", end_date="06/22/2022", index_as_date=False,
-             interval="1d")
+    interval_1d = "1d"
+    interval_1wk = "1wk"
+    interval_1mo = "1mo"
+
+    data_downloaded = get_data(select_data_name(), start_date=from_date_entry.get(), end_date=to_date_entry.get(), index_as_date=False,
+             interval=interval_1d)
+
     # pass to Data Frame
     df = pd.DataFrame(data_downloaded)
     # set Data Frame Columns
@@ -55,6 +60,7 @@ def crypto_download_data():
 
     except AttributeError:
         print("The user cancelled save")
+
 
 # label change from select button
 def select_data_name():
@@ -273,7 +279,7 @@ root = tk.Tk()
 q = StringVar()
 
 # Make the app responsive
-for index in [0, 1, 2, 3]:
+for index in [0, 1, 2, 3, 4]:
     root.columnconfigure(index=index, weight=1)
     root.rowconfigure(index=index, weight=1)
 
@@ -333,7 +339,7 @@ accent_button_save_plot_data.grid(row=5, column=0, columnspan=2, padx=5, pady=10
 # Create a Frame for the select data
 ##############################################################################################################
 data_frame = ttk.LabelFrame(master=root, text="Select Data To Backtesting", padding=(20, 10))
-data_frame.grid(row=0, column=1,rowspan=2,
+data_frame.grid(row=0, column=2,rowspan=2,
                     padx=(20, 10), pady=(20, 10), sticky="nsew"
                     )
 
@@ -346,40 +352,46 @@ label_data.grid(row=0, column=1,columnspan=2, padx=5, pady=10, sticky="nsew")
 ######################################
 # Create Panedwindow for treeview data
 ######################################
-paned = ttk.PanedWindow(master=data_frame)
+paned = ttk.PanedWindow(master=data_frame,orient=VERTICAL,width=650)
 paned.grid(row=1, column=1, pady=(25, 5), sticky="nsew", rowspan=2)
-# Pane #1
+# Pane # 1
 pane_1 = ttk.Frame(paned, padding=5)
 paned.add(pane_1, weight=1)
+# Pane # 2
+pane_1_2 = ttk.Frame(paned, padding=5)
+paned.add(pane_1_2, weight=1)
+
 # Scrollbar
 scrollbar_y = ttk.Scrollbar(pane_1)
-scrollbar_x = ttk.Scrollbar(pane_1)
 scrollbar_y.pack(side="right", fill="y")
-scrollbar_x.pack(side="bottom", fill="x")
+scrollbar_x = ttk.Scrollbar(pane_1)
+#scrollbar_x.pack(side="bottom", fill="x")
 # Create Treeview for review data we selected
 tree_view_show_data = ttk.Treeview(master=pane_1,
                                    selectmode="browse",
-                                    yscrollcommand=scrollbar_y.set,
-                                   xscrollcommand=scrollbar_x.set,
-                                   columns=('0'),
+                                   yscrollcommand=scrollbar_y.set,
+                                   #xscrollcommand=scrollbar_x.set,
+                                   columns=("2"),
                                    height=10,
 
                                    )
+
 tree_view_show_data.pack(expand=True, fill="both")
 scrollbar_y.config(command=tree_view_show_data.yview)
-scrollbar_x.config(command=tree_view_show_data.xview)
+#scrollbar_x.config(command=tree_view_show_data.xview)
 
 
 
 
 
 # Accentbutton_select_data_file
-accent_button_save_plot_data = ttk.Button(master=data_frame, text="select data file",
+accent_button_save_plot_data = ttk.Button(master=pane_1_2, text="select data file",
                                           style="Accent.TButton"
                                          )
 accent_button_save_plot_data['command'] = ask_choose_file
 accent_button_save_plot_data['command'] = label_data_change_from_file_select
-accent_button_save_plot_data.grid(row=6, column=0, columnspan=2, padx=5, pady=10, sticky="nsew")
+#accent_button_save_plot_data.grid(row=6, column=0, columnspan=2, padx=5, pady=10, sticky="nsew")
+accent_button_save_plot_data.pack(expand=False,padx=5,pady=5, fill="both")
 
 
 
@@ -389,14 +401,16 @@ accent_button_save_plot_data.grid(row=6, column=0, columnspan=2, padx=5, pady=10
 
 # make download_data_frame
 download_data_frame = ttk.LabelFrame(master=root, text="Download Data From API", padding=(20, 10))
-download_data_frame.grid(row=0, column=3,rowspan=2,
+download_data_frame.grid(row=0, column=4,rowspan=2,columnspan=2,
                     padx=(20, 10), pady=(20, 10), sticky="nsew"
                     )
+
 # Text label download_data_frame
 label_tree_view = ttk.Label(master=download_data_frame, text="Trading pairs",justify="center",
                   font=("-size", 15, "-weight", "bold")
                   )
 label_tree_view.grid(row=0, column=0,columnspan=3, padx=5, pady=10, sticky="nsew")
+
 
 #######################################################
 # Create Panedwindow for treeview
@@ -410,7 +424,7 @@ paned_2.add(pane_2_1 , weight=1)
 pane_2_2 = ttk.Frame(paned_2, padding=5)
 paned_2.add(pane_2_2, weight=1)
 # Pane # 3
-pane_2_3 = ttk.Frame(paned_2, padding=5)
+pane_2_3 = ttk.Frame(paned_2, padding=10)
 paned_2.add(pane_2_3 , weight=1)
 
 # Scrollbar
@@ -437,7 +451,7 @@ tree_view_crypto_name.column('Crypto/USD')
 tree_view_crypto_name.heading('#0', text='', anchor=CENTER)
 tree_view_crypto_name.heading('Crypto/USD', text='Crypto/USD', anchor=CENTER)
 
-# pass data in to it
+# pass data in to treeview
 for item in list_a_copy:
     tree_view_crypto_name.insert('', 'end', values=item)
 
@@ -457,16 +471,62 @@ reset_button = ttk.Button(master=pane_2_2,text="Reset")
 reset_button.pack(expand=True,padx=5,pady=5, fill="both",side=RIGHT)
 reset_button['command'] = Reset
 
+
 # select name button
 select_button = ttk.Button(master=pane_2_3 ,text="Select")
 select_button.pack(expand=True,padx=5,pady=5, fill="both")
 select_button['command'] = select_data_name
+
+##############################################################################################################
+# Create Frame for data download and setting data
+##############################################################################################################
+# make setting_dataframe
+setting_dataframe = ttk.LabelFrame(master=download_data_frame, text="Setting Data", padding=(20, 10))
+setting_dataframe.grid(row=5, column=1,rowspan=3,columnspan=2,
+                    padx=(10, 10), pady=(10, 10), sticky="nsew"
+                    )
+
+# Text label for data download and setting data
+label_setting_data = ttk.Label(master=setting_dataframe, text="Setting Data",justify="center",
+                  font=("-size", 10, "-weight", "bold")
+                  )
+label_setting_data.grid(row=0, column=0,columnspan=3, padx=5, pady=5, sticky="nsew")
+
+######################################################
+# Button and Entry in  data download and setting data
+######################################################
+# From date Entry box
+from_date_entry = ttk.Entry(master=setting_dataframe,justify=CENTER,font=("-size",10))
+from_date_entry.insert(0,"00/00/0000")
+from_date_entry.grid(row=1,column=1,columnspan=2,padx=5,pady=5)
+
+# Label from date
+label_from_date = ttk.Label(master=setting_dataframe,text="From Date: MM/DD/YYYY",font=("-size", 10,"-weight","bold"),justify=CENTER)
+label_from_date.grid(row=0,column=1,columnspan=2,padx=5,pady=5)
+
+# To date Entry box
+to_date_entry = ttk.Entry(master=setting_dataframe,justify=CENTER,font=("-size",10))
+to_date_entry.insert(0,"00/00/0000")
+to_date_entry.grid(row=1,column=3,columnspan=2,padx=5,pady=5)
+
+# Label from date
+label_to_date = ttk.Label(master=setting_dataframe,text="To Date: MM/DD/YYYY",font=("-size", 10,"-weight","bold"),justify=CENTER)
+label_to_date.grid(row=0,column=3,columnspan=2,padx=5,pady=5)
+
+# Separator
+separator_data_setting = ttk.Separator(master=setting_dataframe,orient=VERTICAL)
+separator_data_setting.grid(row=0, column=2,columnspan=2, sticky="ns",rowspan=10)
+
 # download button
-download_button = ttk.Button(master=pane_2_3 ,text="Download Data")
-download_button.pack(expand=True,padx=5,pady=5, fill="both")
+download_button = ttk.Button(master=setting_dataframe,text="Download Data")
+download_button.grid(row=4,column=1,columnspan=2,padx=8,pady=8)
 download_button['command'] = crypto_download_data
 
-
+# interval time combo box
+list_of_interval_time = ["1 Day","1 Week","1 Month"]
+interval_time_combo_box =ttk.Combobox(master=setting_dataframe,values=list_of_interval_time)
+interval_time_combo_box.current(0)
+interval_time_combo_box.grid(row=4,column=3,columnspan=2,padx=5,pady=5)
 
 
 
